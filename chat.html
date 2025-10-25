@@ -77,7 +77,7 @@ let currentChat = null;
 let stopTyping = false;
 let typewriterSpeed = 7;
 let personality = "normal";
-let userInfo = JSON.parse(localStorage.getItem(INFO_KEY)||"{}");
+let userInfo = JSON.parse(localStorage.getItem(INFO_KEY + "_" + userId)||"{}");
 
 // Menü aç/kapa
 menuBtn.onclick = ()=>{ menu.style.display=menu.style.display==="flex"?"none":"flex"; renderMenu(); }
@@ -94,7 +94,7 @@ function renderMenu(){
   searchInput.style.padding="5px";
   searchInput.style.borderRadius="8px";
   searchInput.style.border="none";
-  searchInput.addEventListener("input",()=>{
+  searchInput.addEventListener("input",()=> {
     const filter = searchInput.value.toLowerCase();
     Array.from(menu.querySelectorAll(".chatBtn")).forEach(btn=>{
       if(btn.dataset.chatId.toLowerCase().includes(filter)) btn.parentElement.style.display="flex";
@@ -107,12 +107,6 @@ function renderMenu(){
   newChatBtn.textContent="Yeni Sohbet";
   newChatBtn.onclick=()=>{ startNewChat(); menu.style.display="none"; };
   menu.appendChild(newChatBtn);
-
-  // Kullanıcı bilgileri butonu
-  const infoBtn=document.createElement("button");
-  infoBtn.textContent="Kullanıcı Bilgileri";
-  infoBtn.onclick=()=>{ showUserInfo(); };
-  menu.appendChild(infoBtn);
 
   Object.keys(userHistory).forEach(chatId=>{
     const container=document.createElement("div");
@@ -134,6 +128,12 @@ function renderMenu(){
     menu.appendChild(container);
   });
 
+  // Kullanıcı bilgileri butonu
+  const infoBtn=document.createElement("button");
+  infoBtn.textContent="Kullanıcı Bilgileri";
+  infoBtn.onclick=()=>{ alert(JSON.stringify(userInfo,null,2)); };
+  menu.appendChild(infoBtn);
+
   const voiceBtn=document.createElement("button");
   voiceBtn.textContent="Sesli Moda Geç";
   voiceBtn.onclick=()=>{ menu.style.display="none"; window.location.href="voice.html"; };
@@ -143,12 +143,6 @@ function renderMenu(){
   personalityBtn.textContent="Nova Kişiliği";
   personalityBtn.onclick=()=>{ selectPersonality(); menu.style.display="none"; };
   menu.appendChild(personalityBtn);
-}
-
-// Kullanıcı bilgileri göster
-function showUserInfo(){
-  if(Object.keys(userInfo).length===0) alert("Henüz bilgi yok.");
-  else alert("Kullanıcı bilgileri:\n"+JSON.stringify(userInfo,null,2));
 }
 
 // Yeni sohbet
@@ -185,12 +179,17 @@ function deleteChat(chatId){
 function addMessage(text,sender,save=true,time=null){
   const div=document.createElement("div");
   div.className="msg "+sender;
-  div.textContent=text;
 
   const timestamp=document.createElement("div");
   timestamp.className="timestamp";
   timestamp.textContent=time||new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   div.appendChild(timestamp);
+
+  if(sender==="nova"){
+    div.innerHTML=text;
+  } else {
+    div.innerHTML=text;
+  }
 
   chat.appendChild(div);
   chat.scroll({top: chat.scrollHeight,behavior:"smooth"});
@@ -210,10 +209,11 @@ function addMessage(text,sender,save=true,time=null){
 // Kullanıcı bilgisi çıkarma
 function updateUserInfo(text){
   text=text.toLowerCase();
-  if(text.includes("adım") || text.includes("benim adım")) userInfo.name=text.split("adım")[1]?.trim()?.split(" ")[0];
+  if(text.includes("adım") || text.includes("benim adım")) userInfo.name=text.split("adım")[1].trim().split(" ")[0];
   if(text.includes("şehir") || text.includes("yaşıyorum")) userInfo.city=text.split("şehir")[1]?.trim()?.split(" ")[0];
   if(text.includes("renk") || text.includes("favori rengim")) userInfo.color=text.split("renk")[1]?.trim()?.split(" ")[0];
-  localStorage.setItem(INFO_KEY,JSON.stringify(userInfo));
+  if(text.includes("okuyorum") || text.includes("bölümüm")) userInfo.study=text;
+  localStorage.setItem(INFO_KEY + "_" + userId,JSON.stringify(userInfo));
 }
 
 // Emoji
@@ -221,6 +221,19 @@ emojiPicker.querySelectorAll("span").forEach(emo=>{ emo.onclick=()=>{ input.valu
 
 // Hızlı mesaj
 quickBtns.querySelectorAll("button").forEach(btn=>{ btn.onclick=()=>sendMessage(btn.textContent); });
+
+// Typewriter
+async function typewriterEffect(element,text){
+  element.textContent="";
+  stopTyping=false;
+  const chars=text.split("");
+  for(let i=0;i<chars.length;i++){
+    if(stopTyping) break;
+    element.textContent+=chars[i];
+    chat.scroll({top: chat.scrollHeight,behavior:"smooth"});
+    await new Promise(r=>setTimeout(r,Math.random()*typewriterSpeed+5));
+  }
+}
 
 // Gönderme
 async function sendMessage(msg=null){
@@ -241,10 +254,15 @@ async function sendMessage(msg=null){
     });
     const data=await res.json();
     let reply=data.response||"⚠️ Bir hata oluştu 😔";
-
     typingDiv.textContent="";
-    addMessage(reply,"nova");
+    const finalDiv=addMessage("", "nova");
+    await typewriterEffect(finalDiv, reply);
 
+    const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+    if(!allHistory[userId]) allHistory[userId]={};
+    if(!allHistory[userId][currentChat]) allHistory[userId][currentChat]=[];
+    allHistory[userId][currentChat].push({text:reply,sender:"nova",time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})});
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(allHistory));
   }catch(err){typingDiv.textContent="Bağlantı hatası 🚫";}
   novaStatus.textContent="Hazır";
   resetAfkTimer();
@@ -259,6 +277,7 @@ function selectPersonality(){
 // Enter & buton
 sendBtn.onclick=()=>sendMessage();
 input.addEventListener("keypress",e=>{if(e.key==="Enter") sendMessage();});
+stopBtn.onclick=()=>{stopTyping=true;};
 
 // AFK
 let afkTimer=null;
