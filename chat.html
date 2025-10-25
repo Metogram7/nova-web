@@ -5,31 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nova Chat — Gelişmiş</title>
 <style>
-body {margin:0;font-family:"Segoe UI",sans-serif;display:flex;flex-direction:column;height:100vh;background:#0d0d0d;color:white;}
-header {text-align:center;padding:15px;font-size:1.5rem;font-weight:bold;color:#00d4ff;border-bottom:2px solid #00d4ff;background:#080808;position:relative;display:flex;align-items:center;justify-content:center;}
-#novaStatus {font-size:0.8rem;margin-left:10px;color:#ffdd00;}
-#menuBtn {position:absolute;right:15px;background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;}
-#menu {position:absolute;right:15px;top:60px;background:#111;border:1px solid #00d4ff;border-radius:12px;padding:10px;display:none;flex-direction:column;min-width:180px;z-index:100;}
-#menu button {margin:5px 0;padding:8px;border:none;border-radius:8px;background:#00d4ff;color:#000;cursor:pointer;transition:0.2s;}
-#menu button:hover {opacity:0.8;}
-#chat {flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;}
-.msg {max-width:80%;margin:8px 0;padding:10px 16px;border-radius:16px;white-space:pre-wrap;word-wrap:break-word;font-size:1rem;line-height:1.4;animation:fadeIn 0.3s ease;position:relative;}
-.msg .timestamp {font-size:0.7rem;color:#999;position:absolute;bottom:-16px;right:10px;}
-.user {background:#b6f0ff;color:#000;align-self:flex-end;margin-left:auto;}
-.nova {background:#111;border:1px solid #00d4ff;color:#00d4ff;align-self:flex-start;margin-right:auto;}
-#inputArea {display:flex;padding:10px 15px;background:#111;border-top:1px solid #00d4ff;gap:5px;}
-#input {flex:1;padding:12px 16px;border-radius:12px;border:none;outline:none;font-size:1rem;background:#111;color:white;}
-button.sendBtn {padding:12px 20px;border-radius:12px;border:none;background:#00d4ff;font-weight:bold;cursor:pointer;transition:0.2s;}
-button.sendBtn:hover {opacity:0.8;}
-button#stopBtn {background:#ff5555;}
-#quickBtns {display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;}
-#quickBtns button {padding:5px 10px;border-radius:8px;border:none;background:#ffdd00;color:#000;cursor:pointer;transition:0.2s;}
-#quickBtns button:hover {opacity:0.8;}
-#emojiPicker {display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;}
-#emojiPicker span {cursor:pointer;font-size:1.2rem;}
-#searchInput {margin-bottom:10px;padding:5px;border-radius:8px;border:none;outline:none;}
-@keyframes fadeIn {from{opacity:0; transform:translateY(10px);}to{opacity:1; transform:translateY(0);}}
-@media(max-width:600px){header {font-size:1.2rem; padding:10px;} #menu {right:5px; top:50px; min-width:150px;} #chat {padding:10px;} #inputArea {flex-direction:column; gap:5px;} #input {width:100%;} button.sendBtn {width:100%;}}
+  body {margin:0;font-family:"Segoe UI",sans-serif;display:flex;flex-direction:column;height:100vh;background:#0d0d0d;color:white;transition:background 0.3s,color 0.3s;}
+  header {text-align:center;padding:15px;font-size:1.5rem;font-weight:bold;color:#00d4ff;border-bottom:2px solid #00d4ff;background:#080808;position:relative;display:flex;align-items:center;justify-content:center;transition:background 0.3s,color 0.3s;}
+  #novaStatus {font-size:0.8rem;margin-left:10px;color:#ffdd00;}
+  #menuBtn {position:absolute;right:15px;background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;}
+  #menu {position:absolute;right:15px;top:60px;background:#111;border:1px solid #00d4ff;border-radius:12px;padding:10px;display:none;flex-direction:column;min-width:180px;z-index:100;}
+  #menu button {margin:5px 0;padding:8px;border:none;border-radius:8px;background:#00d4ff;color:#000;cursor:pointer;transition:0.2s;}
+  #menu button:hover {opacity:0.8;}
+  #chat {flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;}
+  .msg {max-width:80%;margin:8px 0;padding:10px 16px;border-radius:16px;white-space:pre-wrap;word-wrap:break-word;font-size:1rem;line-height:1.4;animation:fadeIn 0.3s ease;position:relative;}
+  .msg .timestamp {font-size:0.7rem;color:#999;position:absolute;bottom:-16px;right:10px;}
+  .user {background:#b6f0ff;color:#000;align-self:flex-end;margin-left:auto;}
+  .nova {background:#111;border:1px solid #00d4ff;color:#00d4ff;align-self:flex-start;margin-right:auto;}
+  #inputArea {display:flex;padding:10px 15px;background:#111;border-top:1px solid #00d4ff;gap:5px;}
+  #input {flex:1;padding:12px 16px;border-radius:12px;border:none;outline:none;font-size:1rem;background:#111;color:white;}
+  button.sendBtn {padding:12px 20px;border-radius:12px;border:none;background:#00d4ff;font-weight:bold;cursor:pointer;transition:0.2s;}
+  button.sendBtn:hover {opacity:0.8;}
+  button#stopBtn {background:#ff5555;}
+  #quickBtns {display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;}
+  #quickBtns button {padding:5px 10px;border-radius:8px;border:none;background:#ffdd00;color:#000;cursor:pointer;transition:0.2s;}
+  #quickBtns button:hover {opacity:0.8;}
+  #emojiPicker {display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;}
+  #emojiPicker span {cursor:pointer;font-size:1.2rem;}
+  @keyframes fadeIn {from{opacity:0; transform:translateY(10px);}to{opacity:1; transform:translateY(0);}}
+  @media(max-width:600px){header {font-size:1.2rem; padding:10px;} #menu {right:5px; top:50px; min-width:150px;} #chat {padding:10px;} #inputArea {flex-direction:column; gap:5px;} #input {width:100%;} button.sendBtn {width:100%;}}
 </style>
 </head>
 <body>
@@ -75,17 +74,20 @@ let userId = localStorage.getItem("nova_user_id");
 if(!userId){userId="user_"+Date.now()+"_"+Math.floor(Math.random()*10000); localStorage.setItem("nova_user_id",userId);}
 let currentChat = null;
 let stopTyping = false;
-let typewriterSpeed = 7; // 3 kat hızlı
+let typewriterSpeed = 7; // 3x hızlı
 let personality = "normal";
+let currentTheme = "dark";
 
 // Menü aç/kapa
 menuBtn.onclick = () => { menu.style.display = menu.style.display==="flex"?"none":"flex"; renderMenu(); }
 
+// Menü içeriği
 function renderMenu(){
   const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
   const userHistory = allHistory[userId]||{};
   menu.innerHTML = "";
 
+  // Arama kutusu
   const searchInput = document.createElement("input");
   searchInput.placeholder = "Geçmişte ara...";
   searchInput.style.marginBottom="10px";
@@ -95,11 +97,13 @@ function renderMenu(){
   searchInput.addEventListener("input",()=> {
     const filter = searchInput.value.toLowerCase();
     Array.from(menu.querySelectorAll(".chatBtn")).forEach(btn=>{
-      btn.parentElement.style.display = btn.dataset.chatId.toLowerCase().includes(filter) ? "flex" : "none";
+      if(btn.dataset.chatId.toLowerCase().includes(filter)) btn.parentElement.style.display="flex";
+      else btn.parentElement.style.display="none";
     });
   });
   menu.appendChild(searchInput);
 
+  // Yeni sohbet
   const newChatBtn = document.createElement("button");
   newChatBtn.textContent = "Yeni Sohbet";
   newChatBtn.onclick = () => { startNewChat(); menu.style.display="none"; };
@@ -118,24 +122,49 @@ function renderMenu(){
 
     const delBtn = document.createElement("button");
     delBtn.textContent = "🗑️";
-    delBtn.style.background="#ff5555"; delBtn.style.color="#fff"; 
-    delBtn.onclick = () => { deleteChat(chatId); };
+    delBtn.style.background="#ff5555"; delBtn.style.color="#fff"; delBtn.onclick = () => { deleteChat(chatId); };
     container.appendChild(delBtn);
 
     menu.appendChild(container);
   });
 
+  // Tema butonu
+  const themeBtn = document.createElement("button");
+  themeBtn.textContent = "Tema Değiştir";
+  themeBtn.onclick = () => { toggleTheme(); menu.style.display="none"; };
+  menu.appendChild(themeBtn);
+
+  // Sesli moda geç
   const voiceBtn = document.createElement("button");
   voiceBtn.textContent = "Sesli Moda Geç";
-  voiceBtn.onclick = () => { menu.style.display = "none"; window.location.href = "voice.html"; };
+  voiceBtn.onclick = () => { menu.style.display="none"; window.location.href="voice.html"; };
   menu.appendChild(voiceBtn);
 
+  // Nova kişiliği
   const personalityBtn = document.createElement("button");
   personalityBtn.textContent = "Nova Kişiliği";
   personalityBtn.onclick = () => { selectPersonality(); menu.style.display="none"; };
   menu.appendChild(personalityBtn);
 }
 
+// Tema değiştirme
+function toggleTheme(){
+  if(currentTheme==="dark"){
+    document.body.style.background="#fff";
+    document.body.style.color="#000";
+    document.querySelector("header").style.background="#eee";
+    document.querySelector("header").style.color="#00d4ff";
+    currentTheme="light";
+  }else{
+    document.body.style.background="#0d0d0d";
+    document.body.style.color="#fff";
+    document.querySelector("header").style.background="#080808";
+    document.querySelector("header").style.color="#00d4ff";
+    currentTheme="dark";
+  }
+}
+
+// Yeni sohbet
 function startNewChat(){
   const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
   if(!allHistory[userId]) allHistory[userId]={};
@@ -147,6 +176,7 @@ function startNewChat(){
   renderMenu();
 }
 
+// Yükleme
 function loadChat(chatId){
   const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
   const history = (allHistory[userId]||{})[chatId]||[];
@@ -155,6 +185,7 @@ function loadChat(chatId){
   currentChat = chatId;
 }
 
+// Silme
 function deleteChat(chatId){
   const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
   if(allHistory[userId] && allHistory[userId][chatId]) delete allHistory[userId][chatId];
@@ -163,6 +194,7 @@ function deleteChat(chatId){
   renderMenu();
 }
 
+// Mesaj ekleme
 function addMessage(text,sender,save=true,time=null){
   const div = document.createElement("div");
   div.className = "msg "+sender;
@@ -185,7 +217,7 @@ function addMessage(text,sender,save=true,time=null){
     codeContainer.appendChild(code);
 
     const copyBtn = document.createElement("button");
-    copyBtn.textContent = "📋";
+    copyBtn.textContent="📋";
     copyBtn.style.position="absolute";
     copyBtn.style.top="5px";
     copyBtn.style.right="5px";
@@ -196,33 +228,39 @@ function addMessage(text,sender,save=true,time=null){
     copyBtn.style.borderRadius="6px";
     copyBtn.style.background="#00d4ff";
     copyBtn.style.color="#000";
-    copyBtn.onclick = () => { navigator.clipboard.writeText(code.textContent); alert("Kod kopyalandı!"); };
+    copyBtn.onclick = ()=>{navigator.clipboard.writeText(code.textContent); alert("Kod kopyalandı!");};
     codeContainer.appendChild(copyBtn);
 
     div.appendChild(codeContainer);
-  } else div.innerHTML=text;
+  } else {
+    div.innerHTML = text;
+  }
 
   const timestamp = document.createElement("div");
-  timestamp.className="timestamp";
-  timestamp.textContent=time||new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  timestamp.className = "timestamp";
+  timestamp.textContent = time||new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   div.appendChild(timestamp);
 
   chat.appendChild(div);
-  chat.scroll({top: chat.scrollHeight, behavior:"smooth"});
+  chat.scroll({top: chat.scrollHeight,behavior:"smooth"});
 
   if(save && currentChat){
-    const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
     if(!allHistory[userId]) allHistory[userId]={};
     if(!allHistory[userId][currentChat]) allHistory[userId][currentChat]=[];
     allHistory[userId][currentChat].push({text,sender,time:timestamp.textContent});
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allHistory));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(allHistory));
   }
   return div;
 }
 
-emojiPicker.querySelectorAll("span").forEach(emo=>{ emo.onclick = () => { input.value += emo.textContent; input.focus(); }; });
-quickBtns.querySelectorAll("button").forEach(btn=>{ btn.onclick = () => sendMessage(btn.textContent); });
+// Emoji
+emojiPicker.querySelectorAll("span").forEach(emo=>{ emo.onclick=()=>{input.value+=emo.textContent; input.focus();}; });
 
+// Hızlı mesaj
+quickBtns.querySelectorAll("button").forEach(btn=>{ btn.onclick=()=>sendMessage(btn.textContent); });
+
+// Typewriter
 async function typewriterEffect(element,text){
   element.textContent="";
   stopTyping=false;
@@ -230,11 +268,12 @@ async function typewriterEffect(element,text){
   for(let i=0;i<chars.length;i++){
     if(stopTyping) break;
     element.textContent+=chars[i];
-    chat.scroll({top:chat.scrollHeight,behavior:"smooth"});
+    chat.scroll({top: chat.scrollHeight, behavior:"smooth"});
     await new Promise(r=>setTimeout(r, Math.random()*typewriterSpeed+5));
   }
 }
 
+// Gönderme
 async function sendMessage(msg=null){
   if(!currentChat) startNewChat();
   const text = msg||input.value.trim();
@@ -242,7 +281,8 @@ async function sendMessage(msg=null){
   addMessage(text,"user");
   input.value="";
 
-  const typingDiv = addMessage("Nova yazıyor...","nova");
+  // Nova yazıyor
+  const typingDiv = addMessage("Nova yazıyor...","nova",false);
   novaStatus.textContent="Nova yazıyor...";
 
   try{
@@ -254,25 +294,35 @@ async function sendMessage(msg=null){
     const data = await res.json();
     let reply = data.response||"⚠️ Bir hata oluştu 😔";
 
-    if(reply.startsWith("<code>") && reply.endsWith("</code>")) reply = "```"+reply.replace(/<code>|<\/code>/g,"")+"```";
+    if(reply.startsWith("<code>") && reply.endsWith("</code>")){
+      reply = "```"+reply.replace(/<code>|<\/code>/g,"")+"```";
+    }
 
     typingDiv.textContent="";
-    await typewriterEffect(typingDiv,reply);
-  }catch(err){
-    typingDiv.textContent="Bağlantı hatası 🚫";
-  }
+    const finalDiv = addMessage("", "nova");
+    await typewriterEffect(finalDiv, reply);
+
+    // Kaydet
+    const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+    if(!allHistory[userId]) allHistory[userId]={};
+    if(!allHistory[userId][currentChat]) allHistory[userId][currentChat]=[];
+    allHistory[userId][currentChat].push({text:reply,sender:"nova",time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})});
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(allHistory));
+  }catch(err){typingDiv.textContent="Bağlantı hatası 🚫";}
   novaStatus.textContent="Hazır";
   resetAfkTimer();
 }
 
+// Kişilik
 function selectPersonality(){
-  const p=prompt("Nova kişiliğini seç: normal, eğlenceli, ciddi, öğretici",personality);
+  const p = prompt("Nova kişiliğini seç: normal, eğlenceli, ciddi, öğretici", personality);
   if(p) personality=p;
 }
 
+// Enter & buton
 sendBtn.onclick=()=>sendMessage();
 input.addEventListener("keypress",e=>{if(e.key==="Enter") sendMessage();});
-stopBtn.onclick=()=>{stopTyping=true;}
+stopBtn.onclick=()=>{stopTyping=true;};
 
 // AFK
 let afkTimer=null;
@@ -282,18 +332,20 @@ function startAfkTimer(){
   afkTimer=setTimeout(async ()=>{
     novaStatus.textContent="Nova ısınıyor...";
     await new Promise(r=>setTimeout(r,5000));
-    novaStatus.textContent="Nova hazır";
+    novaStatus.textContent="Hazır";
   },AFK_TIME);
 }
 function resetAfkTimer(){startAfkTimer();}
 input.addEventListener("input",resetAfkTimer);
 sendBtn.addEventListener("click",resetAfkTimer);
 
-// Açılış
+// Sayfa açılışı
 const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
 const userHistory = allHistory[userId]||{};
-if(Object.keys(userHistory).length>0) loadChat(Object.keys(userHistory)[Object.keys(userHistory).length-1]);
-else startNewChat();
+if(Object.keys(userHistory).length>0){
+  const lastChat = Object.keys(userHistory)[Object.keys(userHistory).length-1];
+  loadChat(lastChat);
+}else startNewChat();
 
 startAfkTimer();
 </script>
