@@ -78,6 +78,7 @@ if(!userId){
 }
 
 let currentChat = null;
+let sending = false; // Ardışık hızlı mesajları engellemek için
 let stopTyping = false;
 let typewriterSpeed = 7;
 let personality = "normal";
@@ -132,7 +133,6 @@ function renderMenu(){
     menu.appendChild(container);
   });
 
-  // Kullanıcı bilgileri butonu
   const infoBtn=document.createElement("button");
   infoBtn.textContent="Kullanıcı Bilgileri";
   infoBtn.onclick=()=>{ alert(JSON.stringify(userInfo,null,2)); };
@@ -237,13 +237,17 @@ async function typewriterEffect(element,text){
 
 // Gönderme
 async function sendMessage(msg=null){
+  if(sending) return;
+  sending = true;
+
   if(!currentChat) startNewChat();
   const text=msg||input.value.trim();
-  if(!text) return;
+  if(!text) { sending=false; return; }
+
   addMessage(text,"user");
   input.value="";
 
-  const typingDiv=addMessage("Nova yazıyor...","nova",false);
+  const typingDiv = addMessage("Nova yazıyor...","nova",false);
   novaStatus.textContent="Nova yazıyor...";
 
   try{
@@ -251,25 +255,32 @@ async function sendMessage(msg=null){
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        userId: userId, // 🔥 Backend’e gönderiliyor
-        message:text,
-        personality:personality,
-        userInfo:userInfo
+        userId: userId,
+        message: text,
+        personality: personality,
+        userInfo: userInfo
       })
     });
-    const data=await res.json();
-    let reply=data.response||"⚠️ Bir hata oluştu 😔";
+    const data = await res.json();
+    let reply = data.response || "⚠️ Bir hata oluştu 😔";
     typingDiv.textContent="";
-    const finalDiv=addMessage("", "nova");
+    const finalDiv = addMessage("", "nova");
     await typewriterEffect(finalDiv, reply);
 
     const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
     if(!allHistory[userId]) allHistory[userId]={};
     if(!allHistory[userId][currentChat]) allHistory[userId][currentChat]=[];
-    allHistory[userId][currentChat].push({text:reply,sender:"nova",time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})});
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(allHistory));
-  }catch(err){typingDiv.textContent="Bağlantı hatası 🚫";}
+    allHistory[userId][currentChat].push({
+      text: reply,
+      sender: "nova",
+      time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allHistory));
+  }catch(err){
+    typingDiv.textContent="Bağlantı hatası 🚫";
+  }
   novaStatus.textContent="Hazır";
+  sending=false;
   resetAfkTimer();
 }
 
@@ -297,7 +308,6 @@ function startAfkTimer(){
 }
 function resetAfkTimer(){startAfkTimer();}
 input.addEventListener("input",resetAfkTimer);
-sendBtn.addEventListener("click",resetAfkTimer);
 
 // Sayfa açılışı
 const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
