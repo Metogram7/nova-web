@@ -5,166 +5,142 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nova Chat — Mobil Uyumlu</title>
 <style>
-  :root {
-    --accent: #00d4ff;
-    --bg: #0d0d0d;
-  }
-  body {
-    margin: 0;
-    font-family: "Segoe UI", sans-serif;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    background: var(--bg);
-    color: white;
-  }
-  header {
-    position: relative;
-    text-align: center;
-    padding: 15px;
-    font-size: 1.5rem;
-    font-weight: bold;
-    background: #080808;
-    border-bottom: 2px solid var(--accent);
-    color: var(--accent);
-    text-shadow: 0 0 10px var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  #menuBtn {
-    position: absolute;
-    right: 15px;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.8rem;
-    cursor: pointer;
-  }
-  #menu {
-    position: absolute;
-    right: 10px;
-    top: 60px;
-    background: #111;
-    border: 1px solid var(--accent);
-    border-radius: 12px;
-    padding: 10px;
-    display: none;
-    flex-direction: column;
-    min-width: 160px;
-    box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
-    z-index: 99;
-  }
-  #menu button {
-    margin: 5px 0;
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    background: var(--accent);
-    color: #000;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  #menu button:hover {
-    opacity: 0.8;
-  }
+:root {
+  --accent: #00d4ff;
+  --bg: #0d0d0d;
+}
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg);
+  color: white;
+}
+header {
+  position: relative;
+  text-align: center;
+  padding: 15px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  background: #080808;
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent);
+  text-shadow: 0 0 10px var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#menuBtn {
+  position: absolute;
+  right: 15px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+#menu {
+  position: absolute;
+  right: 10px;
+  top: 60px;
+  background: #111;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 10px;
+  display: none;
+  flex-direction: column;
+  min-width: 160px;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+  z-index: 99;
+}
+#menu button {
+  margin: 5px 0;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+#menu button:hover { opacity: 0.8; }
 
-  /* Chat alanı */
-  #chat {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    scroll-behavior: smooth;
-  }
-  .msg {
-    max-width: 80%;
-    margin: 8px 0;
-    padding: 10px 16px;
-    border-radius: 16px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-size: 1rem;
-    line-height: 1.4;
-    animation: fadeIn 0.3s ease;
-  }
-  .user {
-    background: #b6f0ff;
-    color: #000;
-    align-self: flex-end;
-    border-top-right-radius: 0;
-  }
-  .nova {
-    background: #111;
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    align-self: flex-start;
-    border-top-left-radius: 0;
-  }
+/* Chat alanı */
+#chat {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+}
+.msg {
+  max-width: 80%;
+  margin: 8px 0;
+  padding: 10px 16px;
+  border-radius: 16px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 1rem;
+  line-height: 1.4;
+  animation: fadeIn 0.3s ease;
+}
+.user { background: #b6f0ff; color: #000; align-self: flex-end; border-top-right-radius: 0; }
+.nova { background: #111; border: 1px solid var(--accent); color: var(--accent); align-self: flex-start; border-top-left-radius: 0; }
 
-  /* Yazıyor animasyonu */
-  .typing::after {
-    content: "...";
-    animation: dots 1.5s steps(3, end) infinite;
-  }
-  @keyframes dots {
-    0%, 20% { content: ""; }
-    40% { content: "."; }
-    60% { content: ".."; }
-    80%, 100% { content: "..."; }
-  }
+/* Yazıyor animasyonu */
+.typing::after { content: "..."; animation: dots 1.5s steps(3, end) infinite; }
+@keyframes dots {
+  0%, 20% { content: ""; }
+  40% { content: "."; }
+  60% { content: ".."; }
+  80%,100% { content: "..."; }
+}
 
-  /* Girdi alanı */
-  #inputArea {
-    display: flex;
-    padding: 10px;
-    background: #111;
-    border-top: 1px solid var(--accent);
-    gap: 5px;
-  }
-  #input {
-    flex: 1;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    outline: none;
-    font-size: 1rem;
-    background: #1a1a1a;
-    color: white;
-  }
-  button.sendBtn {
-    padding: 12px 18px;
-    border-radius: 10px;
-    border: none;
-    background: var(--accent);
-    color: #000;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-  button#stopBtn {
-    background: #ff5555;
-  }
-  button.sendBtn:hover {
-    opacity: 0.85;
-  }
+/* Girdi alanı */
+#inputArea {
+  display: flex;
+  padding: 10px;
+  background: #111;
+  border-top: 1px solid var(--accent);
+  gap: 5px;
+}
+#input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background: #1a1a1a;
+  color: white;
+}
+button.sendBtn {
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+button#stopBtn { background: #ff5555; }
+button.sendBtn:hover { opacity: 0.85; }
 
-  /* Animasyonlar */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Mobil uyum */
-  @media(max-width:700px){
-    header { font-size: 1.3rem; padding: 12px; }
-    #chat { padding: 10px; }
-    #inputArea { flex-direction: column; }
-    #input { width: 100%; }
-    button.sendBtn { width: 100%; }
-  }
+/* Mobil uyum */
+@media(max-width:700px){
+  header { font-size: 1.3rem; padding: 12px; }
+  #chat { padding: 10px; }
+  #inputArea { flex-direction: column; }
+  #input { width: 100%; }
+  button.sendBtn { width: 100%; }
+}
 </style>
 </head>
 <body>
@@ -194,13 +170,14 @@ const BACKEND_URL='https://nova-backenddd.onrender.com/gemma';
 const STORAGE_KEY="nova_chat_memory";
 let stopTyping=false;
 let currentChat=null;
+let lastActive=Date.now();
+let afkInterval=null;
 
 let userId=localStorage.getItem("nova_user_id");
 if(!userId){userId="user_"+Date.now()+"_"+Math.floor(Math.random()*10000);localStorage.setItem("nova_user_id",userId);}
 
 // Menü aç/kapa
 menuBtn.onclick=()=>{menu.style.display=menu.style.display==="flex"?"none":"flex";renderMenu();}
-
 function renderMenu(){
   const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
   const userHistory=allHistory[userId]||{};
@@ -253,18 +230,20 @@ function addMessage(text,sender,save=true){
     allHistory[userId][currentChat].push({text,sender});
     localStorage.setItem(STORAGE_KEY,JSON.stringify(allHistory));
   }
+  lastActive=Date.now();
   return div;
 }
 
 async function typewriterEffect(element,text){
   element.textContent="";
   stopTyping=false;
+  text=text.replace(/[*\/\-]/g,''); // * / - simgelerini kaldır
   const chars=text.split("");
   for(let i=0;i<chars.length;i++){
     if(stopTyping) break;
     element.textContent+=chars[i];
     chat.scrollTop=chat.scrollHeight;
-    await new Promise(r=>setTimeout(r,Math.random()*15+7));
+    await new Promise(r=>setTimeout(r,Math.random()*15+5));
   }
 }
 
@@ -292,9 +271,24 @@ async function sendMessage(){
     typingDiv.textContent="🚫 Bağlantı hatası";
   }
 }
+
 sendBtn.onclick=sendMessage;
 stopBtn.onclick=()=>stopTyping=true;
 input.addEventListener("keypress",e=>{if(e.key==="Enter")sendMessage();});
+
+// AFK modu: 1-2 dk boşta kaldığında Nova kendini ısıtacak
+function startAfkChecker(){
+  afkInterval=setInterval(()=>{
+    if(Date.now()-lastActive>60000){ // 1 dakika AFK
+      fetch(BACKEND_URL,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({message:"AFK ısınma testi"})
+      }).then(()=>console.log("Nova AFK ısındı!"));
+    }
+  },10000);
+}
+startAfkChecker();
 
 const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
 const userHistory=allHistory[userId]||{};
