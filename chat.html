@@ -72,7 +72,11 @@ const STORAGE_KEY = "nova_chat_memory";
 const INFO_KEY = "nova_user_info";
 
 let userId = localStorage.getItem("nova_user_id");
-if(!userId){userId="user_"+Date.now()+"_"+Math.floor(Math.random()*10000); localStorage.setItem("nova_user_id",userId);}
+if(!userId){
+  userId="user_"+Date.now()+"_"+Math.floor(Math.random()*10000);
+  localStorage.setItem("nova_user_id",userId);
+}
+
 let currentChat = null;
 let stopTyping = false;
 let typewriterSpeed = 7;
@@ -185,11 +189,7 @@ function addMessage(text,sender,save=true,time=null){
   timestamp.textContent=time||new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   div.appendChild(timestamp);
 
-  if(sender==="nova"){
-    div.innerHTML=text;
-  } else {
-    div.innerHTML=text;
-  }
+  div.innerHTML+=text;
 
   chat.appendChild(div);
   chat.scroll({top: chat.scrollHeight,behavior:"smooth"});
@@ -250,7 +250,12 @@ async function sendMessage(msg=null){
     const res=await fetch(BACKEND_URL,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({message:text, personality:personality, userInfo:userInfo})
+      body:JSON.stringify({
+        userId: userId, // 🔥 Backend’e gönderiliyor
+        message:text,
+        personality:personality,
+        userInfo:userInfo
+      })
     });
     const data=await res.json();
     let reply=data.response||"⚠️ Bir hata oluştu 😔";
