@@ -27,7 +27,7 @@
   #quickBtns button:hover {opacity:0.8;}
   #emojiPicker {display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;}
   #emojiPicker span {cursor:pointer;font-size:1.2rem;}
-  @keyframes fadeIn {from{opacity:0; transform:translateY(10px);}to{opacity:1; transform:translateY(0);}}
+  @keyframes fadeIn {from{opacity:0; transform:translateY(10px);}to{opacity:1; transform:translateY(0);} }
   @media(max-width:600px){header {font-size:1.2rem; padding:10px;} #menu {right:5px; top:50px; min-width:150px;} #chat {padding:10px;} #inputArea {flex-direction:column; gap:5px;} #input {width:100%;} button.sendBtn {width:100%;}}
 </style>
 </head>
@@ -69,32 +69,32 @@ const quickBtns = document.getElementById("quickBtns");
 const emojiPicker = document.getElementById("emojiPicker");
 const BACKEND_URL = 'https://nova-backenddd.onrender.com/gemma';
 const STORAGE_KEY = "nova_chat_memory";
+const INFO_KEY = "nova_user_info";
 
 let userId = localStorage.getItem("nova_user_id");
 if(!userId){userId="user_"+Date.now()+"_"+Math.floor(Math.random()*10000); localStorage.setItem("nova_user_id",userId);}
 let currentChat = null;
 let stopTyping = false;
-let typewriterSpeed = 7; // 3x hızlı
+let typewriterSpeed = 7;
 let personality = "normal";
-let currentTheme = "dark";
+let userInfo = JSON.parse(localStorage.getItem(INFO_KEY)||"{}");
 
 // Menü aç/kapa
-menuBtn.onclick = () => { menu.style.display = menu.style.display==="flex"?"none":"flex"; renderMenu(); }
+menuBtn.onclick = ()=>{ menu.style.display=menu.style.display==="flex"?"none":"flex"; renderMenu(); }
 
 // Menü içeriği
 function renderMenu(){
   const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
   const userHistory = allHistory[userId]||{};
-  menu.innerHTML = "";
+  menu.innerHTML="";
 
-  // Arama kutusu
   const searchInput = document.createElement("input");
-  searchInput.placeholder = "Geçmişte ara...";
+  searchInput.placeholder="Geçmişte ara...";
   searchInput.style.marginBottom="10px";
   searchInput.style.padding="5px";
   searchInput.style.borderRadius="8px";
   searchInput.style.border="none";
-  searchInput.addEventListener("input",()=> {
+  searchInput.addEventListener("input",()=>{
     const filter = searchInput.value.toLowerCase();
     Array.from(menu.querySelectorAll(".chatBtn")).forEach(btn=>{
       if(btn.dataset.chatId.toLowerCase().includes(filter)) btn.parentElement.style.display="flex";
@@ -103,91 +103,78 @@ function renderMenu(){
   });
   menu.appendChild(searchInput);
 
-  // Yeni sohbet
-  const newChatBtn = document.createElement("button");
-  newChatBtn.textContent = "Yeni Sohbet";
-  newChatBtn.onclick = () => { startNewChat(); menu.style.display="none"; };
+  const newChatBtn=document.createElement("button");
+  newChatBtn.textContent="Yeni Sohbet";
+  newChatBtn.onclick=()=>{ startNewChat(); menu.style.display="none"; };
   menu.appendChild(newChatBtn);
 
-  Object.keys(userHistory).forEach(chatId => {
-    const container = document.createElement("div");
+  // Kullanıcı bilgileri butonu
+  const infoBtn=document.createElement("button");
+  infoBtn.textContent="Kullanıcı Bilgileri";
+  infoBtn.onclick=()=>{ showUserInfo(); };
+  menu.appendChild(infoBtn);
+
+  Object.keys(userHistory).forEach(chatId=>{
+    const container=document.createElement("div");
     container.style.display="flex"; container.style.alignItems="center"; container.style.justifyContent="space-between";
 
-    const btn = document.createElement("button");
-    btn.textContent = chatId;
+    const btn=document.createElement("button");
+    btn.textContent=chatId;
     btn.className="chatBtn";
-    btn.dataset.chatId = chatId;
-    btn.onclick = () => { loadChat(chatId); menu.style.display="none"; };
+    btn.dataset.chatId=chatId;
+    btn.onclick=()=>{ loadChat(chatId); menu.style.display="none"; };
     container.appendChild(btn);
 
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "🗑️";
-    delBtn.style.background="#ff5555"; delBtn.style.color="#fff"; delBtn.onclick = () => { deleteChat(chatId); };
+    const delBtn=document.createElement("button");
+    delBtn.textContent="🗑️";
+    delBtn.style.background="#ff5555"; delBtn.style.color="#fff";
+    delBtn.onclick=()=>{ deleteChat(chatId); };
     container.appendChild(delBtn);
 
     menu.appendChild(container);
   });
 
-  // Tema butonu
-  const themeBtn = document.createElement("button");
-  themeBtn.textContent = "Tema Değiştir";
-  themeBtn.onclick = () => { toggleTheme(); menu.style.display="none"; };
-  menu.appendChild(themeBtn);
-
-  // Sesli moda geç
-  const voiceBtn = document.createElement("button");
-  voiceBtn.textContent = "Sesli Moda Geç";
-  voiceBtn.onclick = () => { menu.style.display="none"; window.location.href="voice.html"; };
+  const voiceBtn=document.createElement("button");
+  voiceBtn.textContent="Sesli Moda Geç";
+  voiceBtn.onclick=()=>{ menu.style.display="none"; window.location.href="voice.html"; };
   menu.appendChild(voiceBtn);
 
-  // Nova kişiliği
-  const personalityBtn = document.createElement("button");
-  personalityBtn.textContent = "Nova Kişiliği";
-  personalityBtn.onclick = () => { selectPersonality(); menu.style.display="none"; };
+  const personalityBtn=document.createElement("button");
+  personalityBtn.textContent="Nova Kişiliği";
+  personalityBtn.onclick=()=>{ selectPersonality(); menu.style.display="none"; };
   menu.appendChild(personalityBtn);
 }
 
-// Tema değiştirme
-function toggleTheme(){
-  if(currentTheme==="dark"){
-    document.body.style.background="#fff";
-    document.body.style.color="#000";
-    document.querySelector("header").style.background="#eee";
-    document.querySelector("header").style.color="#00d4ff";
-    currentTheme="light";
-  }else{
-    document.body.style.background="#0d0d0d";
-    document.body.style.color="#fff";
-    document.querySelector("header").style.background="#080808";
-    document.querySelector("header").style.color="#00d4ff";
-    currentTheme="dark";
-  }
+// Kullanıcı bilgileri göster
+function showUserInfo(){
+  if(Object.keys(userInfo).length===0) alert("Henüz bilgi yok.");
+  else alert("Kullanıcı bilgileri:\n"+JSON.stringify(userInfo,null,2));
 }
 
 // Yeni sohbet
 function startNewChat(){
-  const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+  const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
   if(!allHistory[userId]) allHistory[userId]={};
-  const newChatId = "Sohbet "+(Object.keys(allHistory[userId]).length+1);
+  const newChatId="Sohbet "+(Object.keys(allHistory[userId]).length+1);
   allHistory[userId][newChatId]=[];
   localStorage.setItem(STORAGE_KEY,JSON.stringify(allHistory));
-  currentChat = newChatId;
+  currentChat=newChatId;
   chat.innerHTML="";
   renderMenu();
 }
 
 // Yükleme
 function loadChat(chatId){
-  const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
-  const history = (allHistory[userId]||{})[chatId]||[];
+  const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+  const history=(allHistory[userId]||{})[chatId]||[];
   chat.innerHTML="";
   history.forEach(item=>addMessage(item.text,item.sender,false,item.time));
-  currentChat = chatId;
+  currentChat=chatId;
 }
 
 // Silme
 function deleteChat(chatId){
-  const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+  const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
   if(allHistory[userId] && allHistory[userId][chatId]) delete allHistory[userId][chatId];
   localStorage.setItem(STORAGE_KEY,JSON.stringify(allHistory));
   if(currentChat===chatId) chat.innerHTML=""; currentChat=null;
@@ -196,118 +183,68 @@ function deleteChat(chatId){
 
 // Mesaj ekleme
 function addMessage(text,sender,save=true,time=null){
-  const div = document.createElement("div");
-  div.className = "msg "+sender;
+  const div=document.createElement("div");
+  div.className="msg "+sender;
+  div.textContent=text;
 
-  if(sender==="nova" && text.startsWith("```") && text.endsWith("```")){
-    const codeContainer = document.createElement("div");
-    codeContainer.style.position="relative";
-    codeContainer.style.background="#222";
-    codeContainer.style.color="#0f0";
-    codeContainer.style.padding="10px";
-    codeContainer.style.borderRadius="12px";
-    codeContainer.style.overflowX="auto";
-    codeContainer.style.maxWidth="80%";
-    codeContainer.style.alignSelf="flex-start";
-
-    const code = document.createElement("pre");
-    code.style.margin="0";
-    code.style.whiteSpace="pre-wrap";
-    code.textContent = text.replace(/```/g,"");
-    codeContainer.appendChild(code);
-
-    const copyBtn = document.createElement("button");
-    copyBtn.textContent="📋";
-    copyBtn.style.position="absolute";
-    copyBtn.style.top="5px";
-    copyBtn.style.right="5px";
-    copyBtn.style.padding="3px 6px";
-    copyBtn.style.fontSize="0.8rem";
-    copyBtn.style.cursor="pointer";
-    copyBtn.style.border="none";
-    copyBtn.style.borderRadius="6px";
-    copyBtn.style.background="#00d4ff";
-    copyBtn.style.color="#000";
-    copyBtn.onclick = ()=>{navigator.clipboard.writeText(code.textContent); alert("Kod kopyalandı!");};
-    codeContainer.appendChild(copyBtn);
-
-    div.appendChild(codeContainer);
-  } else {
-    div.innerHTML = text;
-  }
-
-  const timestamp = document.createElement("div");
-  timestamp.className = "timestamp";
-  timestamp.textContent = time||new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  const timestamp=document.createElement("div");
+  timestamp.className="timestamp";
+  timestamp.textContent=time||new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   div.appendChild(timestamp);
 
   chat.appendChild(div);
   chat.scroll({top: chat.scrollHeight,behavior:"smooth"});
 
   if(save && currentChat){
-    const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+    const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
     if(!allHistory[userId]) allHistory[userId]={};
     if(!allHistory[userId][currentChat]) allHistory[userId][currentChat]=[];
     allHistory[userId][currentChat].push({text,sender,time:timestamp.textContent});
     localStorage.setItem(STORAGE_KEY,JSON.stringify(allHistory));
+
+    if(sender==="user") updateUserInfo(text);
   }
   return div;
 }
 
+// Kullanıcı bilgisi çıkarma
+function updateUserInfo(text){
+  text=text.toLowerCase();
+  if(text.includes("adım") || text.includes("benim adım")) userInfo.name=text.split("adım")[1]?.trim()?.split(" ")[0];
+  if(text.includes("şehir") || text.includes("yaşıyorum")) userInfo.city=text.split("şehir")[1]?.trim()?.split(" ")[0];
+  if(text.includes("renk") || text.includes("favori rengim")) userInfo.color=text.split("renk")[1]?.trim()?.split(" ")[0];
+  localStorage.setItem(INFO_KEY,JSON.stringify(userInfo));
+}
+
 // Emoji
-emojiPicker.querySelectorAll("span").forEach(emo=>{ emo.onclick=()=>{input.value+=emo.textContent; input.focus();}; });
+emojiPicker.querySelectorAll("span").forEach(emo=>{ emo.onclick=()=>{ input.value+=emo.textContent; input.focus(); }; });
 
 // Hızlı mesaj
 quickBtns.querySelectorAll("button").forEach(btn=>{ btn.onclick=()=>sendMessage(btn.textContent); });
 
-// Typewriter
-async function typewriterEffect(element,text){
-  element.textContent="";
-  stopTyping=false;
-  const chars=text.split("");
-  for(let i=0;i<chars.length;i++){
-    if(stopTyping) break;
-    element.textContent+=chars[i];
-    chat.scroll({top: chat.scrollHeight, behavior:"smooth"});
-    await new Promise(r=>setTimeout(r, Math.random()*typewriterSpeed+5));
-  }
-}
-
 // Gönderme
 async function sendMessage(msg=null){
   if(!currentChat) startNewChat();
-  const text = msg||input.value.trim();
+  const text=msg||input.value.trim();
   if(!text) return;
   addMessage(text,"user");
   input.value="";
 
-  // Nova yazıyor
-  const typingDiv = addMessage("Nova yazıyor...","nova",false);
+  const typingDiv=addMessage("Nova yazıyor...","nova",false);
   novaStatus.textContent="Nova yazıyor...";
 
   try{
-    const res = await fetch(BACKEND_URL,{
+    const res=await fetch(BACKEND_URL,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({message:text, personality:personality})
+      body:JSON.stringify({message:text, personality:personality, userInfo:userInfo})
     });
-    const data = await res.json();
-    let reply = data.response||"⚠️ Bir hata oluştu 😔";
-
-    if(reply.startsWith("<code>") && reply.endsWith("</code>")){
-      reply = "```"+reply.replace(/<code>|<\/code>/g,"")+"```";
-    }
+    const data=await res.json();
+    let reply=data.response||"⚠️ Bir hata oluştu 😔";
 
     typingDiv.textContent="";
-    const finalDiv = addMessage("", "nova");
-    await typewriterEffect(finalDiv, reply);
+    addMessage(reply,"nova");
 
-    // Kaydet
-    const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
-    if(!allHistory[userId]) allHistory[userId]={};
-    if(!allHistory[userId][currentChat]) allHistory[userId][currentChat]=[];
-    allHistory[userId][currentChat].push({text:reply,sender:"nova",time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})});
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(allHistory));
   }catch(err){typingDiv.textContent="Bağlantı hatası 🚫";}
   novaStatus.textContent="Hazır";
   resetAfkTimer();
@@ -315,14 +252,13 @@ async function sendMessage(msg=null){
 
 // Kişilik
 function selectPersonality(){
-  const p = prompt("Nova kişiliğini seç: normal, eğlenceli, ciddi, öğretici", personality);
+  const p=prompt("Nova kişiliğini seç: normal, eğlenceli, ciddi, öğretici", personality);
   if(p) personality=p;
 }
 
 // Enter & buton
 sendBtn.onclick=()=>sendMessage();
 input.addEventListener("keypress",e=>{if(e.key==="Enter") sendMessage();});
-stopBtn.onclick=()=>{stopTyping=true;};
 
 // AFK
 let afkTimer=null;
@@ -340,13 +276,12 @@ input.addEventListener("input",resetAfkTimer);
 sendBtn.addEventListener("click",resetAfkTimer);
 
 // Sayfa açılışı
-const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
-const userHistory = allHistory[userId]||{};
+const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+const userHistory=allHistory[userId]||{};
 if(Object.keys(userHistory).length>0){
-  const lastChat = Object.keys(userHistory)[Object.keys(userHistory).length-1];
+  const lastChat=Object.keys(userHistory)[Object.keys(userHistory).length-1];
   loadChat(lastChat);
 }else startNewChat();
-
 startAfkTimer();
 </script>
 </body>
