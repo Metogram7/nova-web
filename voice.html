@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Sesli Mod</title>
+<style>
+body {margin:0; background:#0d0d0d; color:white; font-family:"Segoe UI",sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; height:100vh;}
+canvas {background:#000; display:block; margin-top:20px; border-radius:12px;}
+#controls {margin-top:15px; display:flex; gap:10px;}
+button {padding:10px 20px; border:none; border-radius:12px; cursor:pointer; font-weight:bold;}
+#startBtn {background:#00d4ff; color:#000;}
+#stopBtn {background:#ff5555; color:#fff;}
+#chatBtn {background:#ffcc00; color:#000;}
+#transcript {margin-top:15px; width:90%; max-width:600px; min-height:50px; border:1px solid #00d4ff; border-radius:12px; padding:10px; background:#111; color:#00d4ff; white-space:pre-wrap; overflow-y:auto;}
+</style>
+</head>
+<body>
+<h1>Nova Sesli Mod</h1>
+<canvas id="novaCanvas" width="800" height="500"></canvas>
+<div id="controls">
+  <button id="startBtn">Konuş(buna basarak konuşun)</button>
+  <button id="stopBtn">Durdur</button>
+  <button id="chatBtn">Nova ChatBot</button>
+</div>
+<div id="transcript">Nova cevapları burada görünecek...</div>
+
+<script>
+const canvas = document.getElementById("novaCanvas");
+const ctx = canvas.getContext("2d");
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const chatBtn = document.getElementById("chatBtn");
+const transcript = document.getElementById("transcript");
+const BACKEND_URL = 'https://nova-backenddd.onrender.com/gemma';
+
+let ekran_genislik = canvas.width;
+let ekran_yukseklik = canvas.height;
+let merkez_x = ekran_genislik/2;
+let merkez_y = ekran_yukseklik/2;
+let yaricap = 80;
+let dalga_sayisi = 80;
+let dalga_degerleri = Array(dalga_sayisi).fill(0);
+let dalga_animasyon_zaman = 0;
+let nova_konusuyor = false;
+let stopSpeaking = false;
+let speaking = false;
+let dalga_opacity = 0;
+const fadeSpeed = 0.03;
+
+// Düşünüyor animasyonu
+let thinkingInterval;
+function startThinkingAnimation() {
+    let dots = 0;
+    transcript.textContent = "Nova düşünüyor";
+    thinkingInterval = setInterval(() => {
+        dots = (dots + 1) % 4;
+        transcript.textContent = "Nova düşünüyor" + ".".repeat(dots);
+        transcript.scrollTop = transcript.scrollHeight;
+        nova_konusuyor = true;
+    }, 500);
+}
+function stopThinkingAnimation() {
+    clearInterval(thinkingInterval);
+    nova_konusuyor = false;
+}
+
+// Dalgaları çizme fonksiyonu
+function drawWaves(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const dis_yaricap = yaricap + 80;
+
+    // Daire arka plan
+    ctx.strokeStyle = "rgb(0,50,100)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(merkez_x, merkez_y, dis_yaricap, 0, Math.PI*2);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgb(200,0,0)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(merkez_x, merkez_y, yaricap, 0, Math.PI*2);
+    ctx.stroke();
+
+    // NoVa yazısı
+    ctx.fillStyle = "#fff";
+    ctx.font = "80px 'Segoe Script', arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("NoVa", merkez_x, merkez_y);
+
+    // Fade-in / Fade-out
+    if(nova_konusuyor && dalga_opacity<1) dalga_opacity += fadeSpeed;
+    else if(!nova_konusuyor && dalga_opacity>0) dalga_opacity -= fadeSpeed;
+    dalga_opacity = Math.max(0, Math.min(1, dalga_opacity));
+
+    if(dalga_opacity>0){
+        let aktif_dalgalar = [];
+        if(nova_konusuyor){
+            while(aktif_dalgalar.length < dalga_sayisi*0.7){
+                let merkez = Math.floor(Math.random()*dalga_sayisi);
+                let grup = Math.floor(Math.random()*4)+2;
+                for(let j=-grup;j<=grup;j++){
+                    aktif_dalgalar.push((merkez+j+dalga_sayisi)%dalga_sayisi);
+                }
+            }
+            aktif_dalgalar = [...new Set(aktif_dalgalar)];
+        }
+
+        for(let i=0;i<dalga_sayisi;i++){
+            let aci = (2*Math.PI/dalga_sayisi)*i;
+            let hedef;
+            if(aktif_dalgalar.includes(i)){
+                hedef = Math.random()*100 + 50;
+                ctx.strokeStyle = `hsl(${(i*10 + dalga_animasyon_zaman*10)%360}, 100%, 60%)`;
+            } else {
+                hedef = (nova_konusuyor?0:dalga_degerleri[i]);
+                ctx.strokeStyle = `rgba(0,200,255,${dalga_opacity})`;
+            }
+
+            dalga_degerleri[i] += (hedef - dalga_degerleri[i])*0.08;
+            let ekstra_uzunluk = i%15===0 ? 20 : 0;
+            let x1 = merkez_x + Math.cos(aci)*yaricap;
+            let y1 = merkez_y + Math.sin(aci)*yaricap;
+            let x2 = merkez_x + Math.cos(aci)*(yaricap+dalga_degerleri[i]+ekstra_uzunluk);
+            let y2 = merkez_y + Math.sin(aci)*(yaricap+dalga_degerleri[i]+ekstra_uzunluk);
+            let kalinlik = Math.max(3, Math.min(7, Math.floor(dalga_degerleri[i]/20)+2));
+            ctx.lineWidth = kalinlik;
+            ctx.beginPath();
+            ctx.moveTo(x1,y1);
+            ctx.lineTo(x2,y2);
+            ctx.stroke();
+        }
+    }
+
+    dalga_animasyon_zaman += 0.02;
+    requestAnimationFrame(drawWaves);
+}
+
+drawWaves();
+
+// Typewriter ve TTS
+async function novaSpeakLong(text){
+    speaking=true; stopSpeaking=false; nova_konusuyor=true;
+    transcript.textContent="";
+
+    text = text.replace(/[*\/\-\u{1F300}-\u{1F6FF}\u{2600}-\u{26FF}]/gu,"");
+    const sentences = text.match(/.{1,200}(?:\s|$)/g);
+
+    for(const part of sentences){
+        if(stopSpeaking) break;
+        await typewriter(part);
+        if(stopSpeaking) break;
+        await speakTTS(part);
+    }
+
+    speaking=false; nova_konusuyor=false;
+}
+
+function typewriter(text){
+    return new Promise(async resolve=>{
+        for(let char of text){
+            if(stopSpeaking) break;
+            transcript.textContent += char;
+            transcript.scrollTop = transcript.scrollHeight;
+            await new Promise(r=>setTimeout(r, Math.random()*12+5));
+        }
+        transcript.textContent += "\n";
+        transcript.scrollTop = transcript.scrollHeight;
+        resolve();
+    });
+}
+
+function speakTTS(text){
+    return new Promise(resolve=>{
+        if(stopSpeaking){window.speechSynthesis.cancel(); resolve(); return;}
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang="tr-TR";
+        utter.onend=()=>resolve();
+        window.speechSynthesis.speak(utter);
+    });
+}
+
+// Sesli tanıma ve API
+let recognition;
+if('webkitSpeechRecognition' in window){
+    recognition = new webkitSpeechRecognition();
+    recognition.lang="tr-TR";
+    recognition.interimResults=false;
+    recognition.continuous=false;
+    recognition.onresult=async (e)=>{
+        const userText = e.results[0][0].transcript;
+        transcript.textContent="Sen: "+userText+"\n";
+        transcript.scrollTop = transcript.scrollHeight;
+
+        startThinkingAnimation();
+
+        try{
+            const res = await fetch(BACKEND_URL,{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({message:userText})
+            });
+            const data = await res.json();
+            const reply = data.response || "⚠️ Nova yanıt veremedi.";
+            stopThinkingAnimation();
+            await novaSpeakLong(reply);
+        }catch(err){
+            stopThinkingAnimation();
+            transcript.textContent="Bağlantı hatası 🚫";
+            speaking=false; nova_konusuyor=false;
+        }
+    }
+    recognition.onerror=(e)=>{console.error(e); speaking=false; nova_konusuyor=false;}
+} else alert("Tarayıcınız SpeechRecognition desteklemiyor.");
+
+// Kontroller
+startBtn.onclick=()=>{if(recognition) recognition.start();}
+stopBtn.onclick=()=>{stopSpeaking=true; if(recognition) recognition.stop(); window.speechSynthesis.cancel();}
+chatBtn.onclick=()=>{window.location.href="chat.html";}
+</script>
+</body>
+</html>

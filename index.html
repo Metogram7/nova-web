@@ -1,339 +1,154 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Nova — Gelişmiş Web Asistan</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Web</title>
 <style>
-  :root{
-    --bg:#000;
-    --accent:#00d4ff;
-    --panel:#0e0e0f;
-    --terminal:#111;
-    --user:#b6ffb6;
-    --nova:#cfe9ff;
-    --muted:#9aa7b2;
-    --radius:12px;
-    --glass: rgba(255,255,255,0.03);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter, "Courier New", monospace;color:var(--nova);-webkit-font-smoothing:antialiased}
-  .app{display:grid;grid-template-columns:420px 1fr;gap:18px;padding:18px;height:100vh;align-items:stretch;}
-  .left{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--radius);padding:16px;box-shadow:0 8px 30px rgba(0,0,0,0.6);border:1px solid rgba(0,212,255,0.04);display:flex;flex-direction:column;gap:12px;min-width:300px;}
-  .brand{display:flex;gap:12px;align-items:center;}
-  .avatar{width:68px;height:68px;border-radius:16px;background:linear-gradient(135deg,#00d4ff,#0050aa);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:#001;box-shadow:0 6px 18px rgba(0,0,0,0.6), inset 0 -6px 12px rgba(255,255,255,0.03);}
-  .brand h1{margin:0;font-size:20px}
-  .brand p{margin:0;font-size:12px;color:var(--muted)}
-  .controls{display:flex;gap:8px;flex-wrap:wrap;}
-  .btn{background:var(--accent);color:#000;padding:10px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:600;box-shadow:0 6px 12px rgba(0,0,0,0.4);}
-  .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(0,212,255,0.12)}
-  .btn.warn{background:#ffb86b;color:#000}
-  .suggestions{display:flex;gap:8px;flex-wrap:wrap}
-  .chip{background:var(--glass);padding:8px 10px;border-radius:999px;font-size:13px;color:var(--muted);cursor:pointer;border:1px solid rgba(255,255,255,0.02)}
-  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.02)}
-  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-  input[type=range]{width:100%}
-  .right{display:flex;flex-direction:column;gap:12px;height:100%}
-  .visual{height:320px;border-radius:12px;background:radial-gradient(circle at 50% 35%, rgba(0,212,255,0.06), transparent 25%), linear-gradient(180deg, rgba(255,255,255,0.01), transparent);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
-  canvas{max-width:100%;height:100%}
-  .wave-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;}
-  .big-title{font-size:46px;color:white;letter-spacing:1px}
-  .subtitle{font-size:14px;color:var(--muted)}
-  .terminal{flex:1;background:var(--terminal);border-radius:12px;padding:14px;overflow:auto;border:1px solid rgba(0,212,255,0.03);display:flex;flex-direction:column;gap:10px;font-size:17px;}
-  .message{max-width:78%;padding:10px 14px;border-radius:12px}
-  .msg-user{align-self:flex-end;background:linear-gradient(90deg, rgba(182,255,182,0.08), rgba(182,255,182,0.04));border:1px solid rgba(50,150,50,0.12);color:var(--user)}
-  .msg-nova{align-self:flex-start;background:linear-gradient(90deg, rgba(207,233,255,0.04), rgba(207,233,255,0.02));border:1px solid rgba(0,212,255,0.06);color:var(--nova)}
-  .input-row{display:flex;gap:8px;align-items:center;padding-top:6px}
-  #chatField{flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--nova);font-size:16px}
-  .small{font-size:13px;color:var(--muted)}
-  footer{font-size:12px;color:var(--muted);text-align:right;padding-right:6px}
-  @media(max-width:980px){.app{grid-template-columns:1fr;grid-auto-rows:auto;padding:12px}.left{order:2}.right{order:1}}
+body {
+  margin:0;
+  padding:0;
+  font-family:'Segoe UI',sans-serif;
+  background:#000;
+  color:#0ff;
+  overflow:hidden;
+}
+canvas#bgCanvas, canvas#novaIconCanvas{
+  position:absolute;
+  top:0;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:-1;
+}
+#content{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+}
+h1{
+  font-size:4em;
+  margin:0.2em 0;
+  font-family:'Segoe Script', cursive;
+  color:#0ff;
+  text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+}
+p{
+  margin-bottom:2em;
+  font-size:1.2em;
+}
+button{
+  padding:15px 30px;
+  margin:10px;
+  font-size:1.2em;
+  background:#0ff;
+  color:#000;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  transition:0.3s;
+  font-weight:bold;
+}
+button:hover{background:#0cc;}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="left">
-    <div class="brand">
-      <div class="avatar">No</div>
-      <div>
-        <h1>Nova</h1>
-        <p>Sesli + Yazılı Web Asistan — Metehan geliştirdi</p>
-      </div>
-    </div>
 
-    <div class="controls">
-      <button class="btn" id="btnListen">🎙️ Dinle</button>
-      <button class="btn ghost" id="btnStop">⏹️ Durdur</button>
-      <button class="btn ghost" id="btnChat">💬 Chat Başlat</button>
-      <button class="btn ghost" id="btnClear">🧹 Temizle</button>
-    </div>
+<canvas id="bgCanvas"></canvas>
+<canvas id="novaIconCanvas" width="200" height="150"></canvas>
 
-    <div class="panel">
-      <div class="small">Hızlı öneriler</div>
-      <div class="suggestions" id="chips">
-        <div class="chip">Merhaba</div>
-        <div class="chip">Sen kimsin?</div>
-        <div class="chip">Bir şaka yap</div>
-        <div class="chip">Bugün hava nasıl?</div>
-        <div class="chip">Nova</div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <label>Ses Hızı: <span id="rateVal">1.0</span></label>
-      <input type="range" id="rate" min="0.6" max="1.6" step="0.05" value="1.0">
-      <label>Pitch: <span id="pitchVal">1.0</span></label>
-      <input type="range" id="pitch" min="0.5" max="2.0" step="0.05" value="1.0">
-      <label>Tema</label>
-      <select id="themeSelect">
-        <option value="dark">Karanlık</option>
-        <option value="light">Açık (önizleme)</option>
-      </select>
-    </div>
-
-    <div class="panel small">
-      <div><strong>Backend URL:</strong></div>
-      <input type="text" id="backendUrl" style="width:100%;padding:8px;margin-top:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--nova)" placeholder="http://127.0.0.1:5000/gemma" value="https://nova-backend-3rxq.onrender.com/gemma">
-      <div class="small" style="margin-top:8px">Nova, artık Render backend ile 7/24 çalışır.</div>
-    </div>
-
-    <footer>Nova • Hazır</footer>
-  </div>
-
-  <div class="right">
-    <div class="visual">
-      <canvas id="vis" width="900" height="320"></canvas>
-      <div class="wave-center">
-        <div class="big-title">NoVa</div>
-        <div class="subtitle" id="statusText">Hazır — söyle bir şey söyle</div>
-      </div>
-    </div>
-
-    <div class="terminal" id="terminal"></div>
-
-    <div class="input-row panel">
-      <input id="chatField" placeholder="Yazıp Enter'a bas (Chat modu için)...">
-      <button class="btn" id="sendBtn">Gönder</button>
-      <div style="width:10px"></div>
-      <div class="small" id="connStatus">Backend: <span id="backendStatus">Bilinmiyor</span></div>
-    </div>
+<div id="content">
+  <h1>NoVa</h1>
+  <p>Yapay zeka ile sohbet edin veya sesli komut verin</p>
+  <div>
+    <button id="chatBtn">Chat Moduna Geç</button>
+    <button id="voiceBtn">Sesli Mod</button>
   </div>
 </div>
 
 <script>
-const BACKEND_INPUT = document.getElementById('backendUrl');
-const BACKEND_STATUS = document.getElementById('backendStatus');
-const terminal = document.getElementById('terminal');
-const vis = document.getElementById('vis');
-const ctx = vis.getContext('2d');
-const statusText = document.getElementById('statusText');
-const chatField = document.getElementById('chatField');
-
-let BACKEND_URL = 'https://nova-backenddd.onrender.com/gemma';
-
-BACKEND_INPUT.value = BACKEND_URL;
-let useBackend = true;
-let utter = null, speaking = false, chatMode=false;
-
-// Voice settings
-const rateControl = document.getElementById('rate');
-const pitchControl = document.getElementById('pitch');
-const rateVal = document.getElementById('rateVal');
-const pitchVal = document.getElementById('pitchVal');
-rateControl.value = localStorage.getItem('nova_rate') || 1.0;
-pitchControl.value = localStorage.getItem('nova_pitch') || 1.0;
-rateVal.textContent = rateControl.value;
-pitchVal.textContent = pitchControl.value;
-
-// theme
-const themeSelect = document.getElementById('themeSelect');
-themeSelect.value = localStorage.getItem('nova_theme') || 'dark';
-function applyTheme(name){
-  if(name==='light'){
-    document.documentElement.style.setProperty('--bg','#f4f7fb');
-    document.documentElement.style.setProperty('--terminal','#ffffff');
-    document.documentElement.style.setProperty('--panel','#ffffff');
-    document.documentElement.style.setProperty('--nova','#0a2b3a');
-    document.documentElement.style.setProperty('--muted','#6b7280');
-    document.documentElement.style.setProperty('--accent','#0077ff');
-  } else {
-    document.documentElement.style.setProperty('--bg','#000');
-    document.documentElement.style.setProperty('--terminal','#111');
-    document.documentElement.style.setProperty('--panel','#0e0e0f');
-    document.documentElement.style.setProperty('--nova','#cfe9ff');
-    document.documentElement.style.setProperty('--muted','#9aa7b2');
-    document.documentElement.style.setProperty('--accent','#00d4ff');
-  }
+// --- Arka plan yıldızları ---
+const bgCanvas = document.getElementById("bgCanvas");
+const bgCtx = bgCanvas.getContext("2d");
+let w = bgCanvas.width = window.innerWidth;
+let h = bgCanvas.height = window.innerHeight;
+let stars=[];
+for(let i=0;i<100;i++){
+  stars.push({x:Math.random()*w, y:Math.random()*h, r:Math.random()*1.5+0.5, dx:Math.random()*0.3-0.15, dy:Math.random()*0.3-0.15});
 }
-applyTheme(themeSelect.value);
-
-// load history
-const saved = JSON.parse(localStorage.getItem('nova_history') || '[]');
-saved.forEach(m=>{
-  const el=document.createElement('div');
-  el.className='message '+(m.from==='user'?'msg-user':'msg-nova');
-  el.innerText=(m.from==='user'?'Sen: ':'Nova: ')+m.text;
-  terminal.appendChild(el);
-});
-terminal.scrollTop = terminal.scrollHeight;
-
-// fallback responses
-const fallbackResponses=[
-  "Bunu tam anlayamadım, biraz daha açıklar mısın?",
-  "Güzel soru! Şu an çevrimdışı olduğum için kısa cevap veriyorum.",
-  "Eğlenceli! Ama şu an çevrimiçi olduğumda daha iyi anlatırım."
-];
-
-// UI events
-document.getElementById('btnListen').addEventListener('click', startListening);
-document.getElementById('btnStop').addEventListener('click', stopSpeaking);
-document.getElementById('btnChat').addEventListener('click', toggleChat);
-document.getElementById('btnClear').addEventListener('click', clearHistory);
-document.getElementById('sendBtn').addEventListener('click', sendChat);
-BACKEND_INPUT.addEventListener('change', ()=> {
-  BACKEND_URL=BACKEND_INPUT.value.trim();
-  localStorage.setItem('nova_backend', BACKEND_URL);
-  checkBackend();
-});
-
-// chips
-document.querySelectorAll('.chip').forEach(c=>{
-  c.addEventListener('click', ()=>{
-    const txt=c.textContent.trim();
-    addUserMessage(txt);
-    processCommand(txt);
+function drawStars(){
+  bgCtx.clearRect(0,0,w,h);
+  bgCtx.fillStyle="rgba(0,255,255,0.8)";
+  stars.forEach(s=>{
+    bgCtx.beginPath();
+    bgCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    bgCtx.fill();
+    s.x+=s.dx; s.y+=s.dy;
+    if(s.x<0) s.x=w; if(s.x>w) s.x=0;
+    if(s.y<0) s.y=h; if(s.y>h) s.y=0;
   });
-});
-
-// rate/pitch
-rateControl.addEventListener('input', ()=>{
-  rateVal.textContent=rateControl.value;
-  localStorage.setItem('nova_rate',rateControl.value);
-});
-pitchControl.addEventListener('input', ()=>{
-  pitchVal.textContent=pitchControl.value;
-  localStorage.setItem('nova_pitch',pitchControl.value);
-});
-
-// theme
-themeSelect.addEventListener('change',()=>{
-  applyTheme(themeSelect.value);
-  localStorage.setItem('nova_theme',themeSelect.value);
-});
-
-// chat field
-chatField.addEventListener('keydown',(e)=>{
-  if(e.key==='Enter') sendChat();
-});
-
-// message functions
-function persistMessage(from,text){
-  const arr=JSON.parse(localStorage.getItem('nova_history')||'[]');
-  arr.push({from,text,time:Date.now()});
-  localStorage.setItem('nova_history',JSON.stringify(arr));
+  requestAnimationFrame(drawStars);
 }
-function addUserMessage(text){
-  const el=document.createElement('div');
-  el.className='message msg-user';
-  el.innerText='Sen: '+text;
-  terminal.appendChild(el);
-  terminal.scrollTop=terminal.scrollHeight;
-  persistMessage('user',text);
-}
-function addNovaMessage(text){
-  const el=document.createElement('div');
-  el.className='message msg-nova';
-  el.innerText='Nova: '+text;
-  terminal.appendChild(el);
-  terminal.scrollTop=terminal.scrollHeight;
-  persistMessage('nova',text);
-}
+drawStars();
 
-// clear
-function clearHistory(){
-  if(!confirm('Terminal geçmişi temizlensin mi?')) return;
-  localStorage.removeItem('nova_history');
-  terminal.innerHTML='';
-  BACKEND_STATUS.innerText='Bilinmiyor';
-}
+// --- Küçük Nova animasyonu ---
+const novaCanvas = document.getElementById("novaIconCanvas");
+const nCtx = novaCanvas.getContext("2d");
+let centerX = novaCanvas.width/2;
+let centerY = novaCanvas.height/2;
+let radius = 40;
+let dalgaSayisi = 50;
+let dalgaDegerleri = Array(dalgaSayisi).fill(0);
+let dalgaOpacity = 1;
+let t=0;
 
-// speak
-function speak(text){
-  if(utter) speechSynthesis.cancel();
-  addNovaMessage(text);
-  utter=new SpeechSynthesisUtterance(text);
-  utter.lang='tr-TR';
-  utter.rate=parseFloat(rateControl.value||1.0);
-  utter.pitch=parseFloat(pitchControl.value||1.0);
-  utter.onend=()=>{speaking=false;utter=null;statusText.innerText='Hazır — söyle bir şey söyle'};
-  utter.onerror=()=>{speaking=false;utter=null;statusText.innerText='Hata: konuşma iptal'};
-  speaking=true;
-  statusText.innerText='Nova konuşuyor...';
-  speechSynthesis.speak(utter);
-}
+function drawNovaIcon(){
+  nCtx.clearRect(0,0,novaCanvas.width,novaCanvas.height);
 
-// stop
-function stopSpeaking(){
-  if(utter){speechSynthesis.cancel();addNovaMessage('(konuşma durduruldu)');utter=null;speaking=false;statusText.innerText='Konuşma durduruldu';}
-}
-
-// listen
-function startListening(){
-  chatMode=false;
-  chatField.style.display='none';
-  const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!Recognition){alert('Tarayıcınızda SpeechRecognition desteklenmiyor.');return;}
-  const rec=new Recognition();
-  rec.lang='tr-TR';rec.interimResults=false;rec.maxAlternatives=1;
-  try{rec.start();statusText.innerText='Dinleniyor...';}catch(e){console.error(e);}
-  rec.onresult=(ev)=>{
-    const komut=ev.results[0][0].transcript.toLowerCase();
-    addUserMessage(komut);
-    processCommand(komut);
+  // Daire ve dalgalar
+  nCtx.strokeStyle="rgba(0,200,255,0.8)";
+  nCtx.lineWidth=2;
+  for(let i=0;i<dalgaSayisi;i++){
+    let aci = (2*Math.PI/dalgaSayisi)*i;
+    let hedef = Math.sin(t/10 + i/5)*20;
+    dalgaDegerleri[i]+=(hedef-dalgaDegerleri[i])*0.08;
+    let x1=centerX+Math.cos(aci)*radius;
+    let y1=centerY+Math.sin(aci)*radius;
+    let x2=centerX+Math.cos(aci)*(radius+dalgaDegerleri[i]);
+    let y2=centerY+Math.sin(aci)*(radius+dalgaDegerleri[i]);
+    let kalin=Math.max(2,Math.min(4,Math.floor(dalgaDegerleri[i]/15)+2));
+    nCtx.lineWidth=kalin;
+    nCtx.beginPath();
+    nCtx.moveTo(x1,y1);
+    nCtx.lineTo(x2,y2);
+    nCtx.stroke();
   }
-  rec.onerror=(ev)=>{statusText.innerText='Dinleme hatası';console.error(ev);}
-  rec.onend=()=>{if(!speaking) statusText.innerText='Hazır — söyle bir şey söyle';}
+
+  t++;
+  requestAnimationFrame(drawNovaIcon);
 }
+drawNovaIcon();
 
-// chat toggle
-function toggleChat(){chatMode=!chatMode;chatField.style.display=chatMode?'block':'none';if(chatMode) chatField.focus();}
-
-// send chat
-function sendChat(){const txt=chatField.value.trim();if(!txt) return;addUserMessage(txt);chatField.value='';processCommand(txt);}
-
-// process command
-async function processCommand(komut){
-  if(komut.includes('sen kimsin')){speak('Ben Nova, Metehan tarafından geliştirildim!');return;}
-  if(komut==='nova'||komut.includes('nova ')){speak('Efendim?');return;}
-  if(komut.includes('temizle geçmişi')){clearHistory();speak('Geçmiş temizlendi');return;}
-
-  statusText.innerText='AI ile konuşuluyor...';
-  if(useBackend){
-    try{
-      const res=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:komut})});
-      if(!res.ok) throw new Error('backend hata');
-      const data=await res.json();
-      const text=data.response||'(boş cevap)';
-      speak(text);
-      BACKEND_STATUS.innerText='Çalışıyor';
-      return;
-    }catch(err){console.warn('backend error',err);BACKEND_STATUS.innerText='Ulaşılamıyor';}
-  }
-  const pick=fallbackResponses[Math.floor(Math.random()*fallbackResponses.length)];
-  speak(pick);
-  statusText.innerText='Çevrimdışı mod (fallback)';
+// --- Logo animasyonu ---
+const logo = document.querySelector("#content h1");
+function animateLogo(){
+  logo.style.transform = `translateY(${Math.sin(t/20)*5}px)`;
+  logo.style.textShadow = `0 0 ${10+Math.sin(t/10)*5}px #0ff, 0 0 ${20+Math.cos(t/15)*10}px #0ff`;
+  requestAnimationFrame(animateLogo);
 }
+animateLogo();
 
-// backend check
-async function checkBackend(){
-  try{
-    const res=await fetch(BACKEND_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Merhaba'})});
-    const data=await res.json();
-    if(data.response) BACKEND_STATUS.innerText='Çalışıyor';
-    else BACKEND_STATUS.innerText='Ulaşılamıyor';
-  }catch(e){BACKEND_STATUS.innerText='Ulaşılamıyor';}
-}
-checkBackend();
+// --- Butonlar ---
+document.getElementById("chatBtn").onclick=()=>{window.location.href="chat.html";}
+document.getElementById("voiceBtn").onclick=()=>{window.location.href="voice.html";}
+
+// --- Pencere boyutu değişince canvas yeniden boyutlanır ---
+window.addEventListener("resize",()=>{
+  w=bgCanvas.width=window.innerWidth;
+  h=bgCanvas.height=window.innerHeight;
+});
 </script>
+
 </body>
 </html>

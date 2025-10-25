@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nova Chat — Çoklu Sohbet + Durdur</title>
+<style>
+body {margin:0; font-family:"Segoe UI",sans-serif; display:flex; flex-direction:column; height:100vh; background:#0d0d0d; color:white;}
+header {text-align:center; padding:15px; font-size:1.5rem; font-weight:bold; color:#00d4ff; border-bottom:2px solid #00d4ff; background:#080808; position:relative;}
+#menuBtn {position:absolute; right:15px; top:50%; transform:translateY(-50%); background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;}
+#menu {position:absolute; right:15px; top:50px; background:#111; border:1px solid #00d4ff; border-radius:12px; padding:10px; display:none; flex-direction:column; min-width:150px; z-index:100;}
+#menu button {margin:5px 0; padding:8px; border:none; border-radius:8px; background:#00d4ff; color:#000; cursor:pointer; transition:0.2s;}
+#menu button:hover {opacity:0.8;}
+#chat {flex:1; padding:20px; overflow-y:auto; display:flex; flex-direction:column;}
+.msg {max-width:80%; margin:8px 0; padding:10px 16px; border-radius:16px; white-space:pre-wrap; word-wrap:break-word; font-size:1rem; line-height:1.4; animation:fadeIn 0.3s ease;}
+.user {background:#b6f0ff; color:#000; align-self:flex-end; margin-left:auto;}
+.nova {background:#111; border:1px solid #00d4ff; color:#00d4ff; align-self:flex-start; margin-right:auto;}
+#inputArea {display:flex; padding:10px 15px; background:#111; border-top:1px solid #00d4ff;}
+#input {flex:1; padding:12px 16px; border-radius:12px; border:none; outline:none; font-size:1rem; background:#111; color:white;}
+button.sendBtn {margin-left:10px; padding:12px 20px; border-radius:12px; border:none; background:#00d4ff; font-weight:bold; cursor:pointer; transition:0.2s;}
+button.sendBtn:hover {opacity:0.8;}
+button#stopBtn {background:#ff5555;}
+@keyframes fadeIn {from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+</style>
+</head>
+<body>
+<header>
+💬 Nova AI Chat
+<button id="menuBtn">⋮</button>
+<div id="menu"></div>
+</header>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="input" type="text" placeholder="Bir şey yaz..." autocomplete="off">
+  <button class="sendBtn" id="sendBtn">Gönder</button>
+  <button class="sendBtn" id="stopBtn">Durdur</button>
+</div>
+
+<script>
+const chat=document.getElementById("chat");
+const input=document.getElementById("input");
+const sendBtn=document.getElementById("sendBtn");
+const stopBtn=document.getElementById("stopBtn");
+const menuBtn=document.getElementById("menuBtn");
+const menu=document.getElementById("menu");
+const BACKEND_URL='https://nova-backenddd.onrender.com/gemma';
+const STORAGE_KEY="nova_chat_memory";
+
+let userId=localStorage.getItem("nova_user_id");
+if(!userId){userId="user_"+Date.now()+"_"+Math.floor(Math.random()*10000); localStorage.setItem("nova_user_id",userId);}
+let currentChat=null;
+let stopTyping=false;
+
+// Menü aç/kapa
+menuBtn.onclick=()=>{menu.style.display=menu.style.display==="flex"?"none":"flex"; renderMenu();}
+
+// Menü içeriği
+function renderMenu(){
+  const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+  const userHistory = allHistory[userId] || {};
+  menu.innerHTML = "";
+
+  // Yeni Sohbet
+  const newChatBtn = document.createElement("button");
+  newChatBtn.textContent = "Yeni Sohbet";
+  newChatBtn.onclick = () => { startNewChat(); menu.style.display = "none"; };
+  menu.appendChild(newChatBtn);
+
+  // Önceki Sohbetler
+  const chatIds = Object.keys(userHistory);
+  chatIds.forEach(chatId => {
+    const btn = document.createElement("button");
+    btn.textContent = chatId; // Sohbet 1, Sohbet 2...
+    btn.onclick = () => { loadChat(chatId); menu.style.display = "none"; };
+    menu.appendChild(btn);
+  });
+
+  // Sesli Moda Geç
+  const voiceBtn = document.createElement("button");
+  voiceBtn.textContent = "Sesli Moda Geç";
+  voiceBtn.onclick = () => {
+    menu.style.display = "none";
+    window.location.href = "voice.html"; // Sesli mod sayfan
+  };
+  menu.appendChild(voiceBtn);
+}
+
+// Yeni sohbet başlat
+function startNewChat(){
+  const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+  if(!allHistory[userId]) allHistory[userId]={};
+  const newChatId="Sohbet "+(Object.keys(allHistory[userId]).length+1);
+  allHistory[userId][newChatId]=[];
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(allHistory));
+  currentChat=newChatId;
+  chat.innerHTML="";
+  renderMenu();
+}
+
+// Belirli sohbeti yükle
+function loadChat(chatId){
+  const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+  const history=(allHistory[userId]||{})[chatId]||[];
+  chat.innerHTML="";
+  history.forEach(item=>addMessage(item.text,item.sender,false));
+  currentChat=chatId;
+}
+
+// Mesaj ekleme ve kaydetme
+function addMessage(text,sender,save=true){
+  const div=document.createElement("div");
+  div.className="msg "+sender;
+  div.textContent=text;
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+  if(save && currentChat){
+    const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+    if(!allHistory[userId]) allHistory[userId]={};
+    if(!allHistory[userId][currentChat]) allHistory[userId][currentChat]=[];
+    allHistory[userId][currentChat].push({text,sender});
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(allHistory));
+  }
+  return div;
+}
+
+// Typewriter efekti (HIZ ARTIRILDI)
+async function typewriterEffect(element,text){
+  element.textContent="";
+  stopTyping=false;
+  const chars=text.split("");
+  for(let i=0;i<chars.length;i++){
+    if(stopTyping) break;
+    element.textContent+=chars[i];
+    chat.scrollTop=chat.scrollHeight;
+    await new Promise(r => setTimeout(r, Math.random()*17+10)); // Hız artırıldı
+  }
+}
+
+// Mesaj gönderme
+async function sendMessage(){
+  if(!currentChat) startNewChat();
+  const text=input.value.trim();
+  if(!text) return;
+  addMessage(text,"user");
+  input.value="";
+
+  const typingDiv=addMessage("Nova yazıyor...","nova");
+  try{
+    const res=await fetch(BACKEND_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message:text})
+    });
+    const data=await res.json();
+    const reply=data.response||"⚠️ Bir hata oluştu 😔";
+    typingDiv.textContent="";
+    await typewriterEffect(typingDiv,reply);
+  }catch(err){
+    typingDiv.textContent="Bağlantı hatası 🚫";
+  }
+}
+
+// Buton ve Enter tuşları
+sendBtn.onclick=sendMessage;
+input.addEventListener("keypress",e=>{if(e.key==="Enter") sendMessage();});
+stopBtn.onclick=()=>{stopTyping=true;}
+
+// Sayfa açıldığında mevcut sohbet veya yeni sohbet
+const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+const userHistory=allHistory[userId]||{};
+if(Object.keys(userHistory).length>0){
+  const lastChat=Object.keys(userHistory)[Object.keys(userHistory).length-1];
+  loadChat(lastChat);
+}else startNewChat();
+</script>
+</body>
+</html>
