@@ -67,7 +67,9 @@ const menu = document.getElementById("menu");
 const novaStatus = document.getElementById("novaStatus");
 const quickBtns = document.getElementById("quickBtns");
 const emojiPicker = document.getElementById("emojiPicker");
-const BACKEND_URL = "https://<render-url>.onrender.com/nova";
+
+// 🔥 Doğru backend URL ve endpoint
+const BACKEND_URL = 'https://nova-backend-3rxq.onrender.com/nova';
 
 const STORAGE_KEY = "nova_chat_memory";
 const INFO_KEY = "nova_user_info";
@@ -133,7 +135,6 @@ function renderMenu(){
     menu.appendChild(container);
   });
 
-  // Kullanıcı bilgileri butonu
   const infoBtn=document.createElement("button");
   infoBtn.textContent="Kullanıcı Bilgileri";
   infoBtn.onclick=()=>{ alert(JSON.stringify(userInfo,null,2)); };
@@ -252,7 +253,7 @@ async function sendMessage(msg=null){
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        userId: userId, // 🔥 Backend’e gönderiliyor
+        userId: userId,
         message:text,
         personality:personality,
         userInfo:userInfo
@@ -304,7 +305,7 @@ sendBtn.addEventListener("click",resetAfkTimer);
 const allHistory=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
 const userHistory=allHistory[userId]||{};
 if(Object.keys(userHistory).length>0){
-  const lastChat=Object.keys(userHistory)[Object.keys(userHistory).length-1];
+  const lastChat = Object.keys(userHistory)[Object.keys(userHistory).length - 1];
   loadChat(lastChat);
 }else startNewChat();
 startAfkTimer();
